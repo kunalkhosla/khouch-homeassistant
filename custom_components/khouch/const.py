@@ -18,6 +18,7 @@ DOMAIN = "khouch"
 CONF_URL = "url"
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"  # noqa: S105
+CONF_PROFILE = "profile"  # which Khouch profile to browse as (kid-blocking, etc.)
 
 DEFAULT_SEARCH_LIMIT = 20
 

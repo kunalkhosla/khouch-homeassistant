@@ -33,6 +33,7 @@ from homeassistant.helpers import config_validation as cv
 from .api import KhouchAuthError, KhouchClient, KhouchError
 from .const import (
     CONF_PASSWORD,
+    CONF_PROFILE,
     CONF_URL,
     CONF_USERNAME,
     DEFAULT_SEARCH_LIMIT,
@@ -108,7 +109,10 @@ _PLAY_SCHEMA = vol.Schema(
 async def async_setup_entry(hass: HomeAssistant, entry: KhouchConfigEntry) -> bool:
     """Set up Khouch from a config entry."""
     client = KhouchClient(
-        entry.data[CONF_URL], entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD]
+        entry.data[CONF_URL],
+        entry.data[CONF_USERNAME],
+        entry.data[CONF_PASSWORD],
+        entry.data.get(CONF_PROFILE),
     )
     try:
         await client.login()

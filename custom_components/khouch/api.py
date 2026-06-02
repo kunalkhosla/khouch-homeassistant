@@ -28,10 +28,17 @@ class KhouchAuthError(KhouchError):
 class KhouchClient:
     """Minimal client: login, search, resolve a stream URL."""
 
-    def __init__(self, base_url: str, username: str, password: str) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        username: str,
+        password: str,
+        profile_id: str | None = None,
+    ) -> None:
         self._base = base_url.rstrip("/")
         self._user = username
         self._pass = password
+        self._profile_id = profile_id
         self._session: aiohttp.ClientSession | None = None
 
     @property
@@ -49,6 +56,13 @@ class KhouchClient:
             await self._session.close()
 
     async def login(self) -> None:
+        """Authenticate, then select the configured profile.
+
+        Catalog endpoints are profile-gated: a session cookie alone gets a
+        ``401 profile required``. So after login we POST the chosen profile to
+        set the ``khouch_profile`` cookie. ``/api/profiles`` itself is not
+        profile-gated, so it works on the bare session.
+        """
         session = self._ensure_session()
         try:
             async with session.post(
@@ -65,6 +79,29 @@ class KhouchClient:
                     raise KhouchAuthError(str(data.get("error", "login failed")))
         except aiohttp.ClientError as err:
             raise KhouchError(f"cannot reach Khouch at {self._base}: {err}") from err
+
+        if self._profile_id:
+            await self._select_profile(self._profile_id)
+
+    async def get_profiles(self) -> list[dict[str, Any]]:
+        """List the logged-in account's profiles (id, nick, kidsBirthYear…)."""
+        data = await self._get_json("/api/profiles", _retry=False)
+        return data.get("profiles", []) if isinstance(data, dict) else []
+
+    async def _select_profile(self, profile_id: str) -> None:
+        session = self._ensure_session()
+        try:
+            async with session.post(
+                f"{self._base}/api/profile/select",
+                json={"id": profile_id},
+                headers={"Accept": "application/json"},
+            ) as resp:
+                if resp.status != 200:
+                    raise KhouchError(
+                        f"could not select profile '{profile_id}' (HTTP {resp.status})"
+                    )
+        except aiohttp.ClientError as err:
+            raise KhouchError(f"profile select failed: {err}") from err
 
     async def _get_json(self, path: str, *, _retry: bool = True) -> Any:
         session = self._ensure_session()
