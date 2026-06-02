@@ -125,7 +125,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: KhouchConfigEntry) -> bo
 
     entry.runtime_data = KhouchRuntime(client)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = entry.runtime_data
-    entry.async_on_unload(lambda: hass.async_create_task(client.close()))
 
     _register_services(hass)
     entry.async_on_unload(entry.add_update_listener(_reload))
@@ -138,7 +137,9 @@ async def _reload(hass: HomeAssistant, entry: KhouchConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: KhouchConfigEntry) -> bool:
     """Unload a config entry."""
-    hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
+    runtime = hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
+    if runtime is not None:
+        await runtime.client.close()
     if not hass.data.get(DOMAIN):
         for service in (SERVICE_SEARCH, SERVICE_PLAY):
             hass.services.async_remove(DOMAIN, service)
