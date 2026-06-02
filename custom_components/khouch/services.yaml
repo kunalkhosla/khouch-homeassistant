@@ -1,0 +1,53 @@
+search:
+  name: Search the Khouch catalog
+  description: >-
+    Search live channels, movies, and series. Returns ALL matches so the caller
+    can disambiguate (e.g. "CNN" may hit several channels). Each result includes
+    an opaque "ref" to hand to khouch.play.
+  fields:
+    query:
+      name: Query
+      description: What to look for (channel name, movie/series title, genre).
+      required: true
+      example: CNN
+      selector:
+        text:
+    kind:
+      name: Kind
+      description: Limit to one catalog type. Omit to search everything.
+      selector:
+        select:
+          options:
+            - live
+            - movie
+            - series
+    limit:
+      name: Limit
+      description: Max results to return.
+      default: 20
+      selector:
+        number:
+          min: 1
+          max: 60
+          mode: box
+
+play:
+  name: Play a Khouch result
+  description: >-
+    Stream one search result (by its "ref") to a media player. Resolves the
+    cast-ready URL and calls media_player.play_media.
+  fields:
+    ref:
+      name: Ref
+      description: The opaque "ref" from a khouch.search result.
+      required: true
+      example: "live:12345:m3u8"
+      selector:
+        text:
+    entity_id:
+      name: Target player
+      description: The media_player to stream to.
+      required: true
+      selector:
+        entity:
+          domain: media_player

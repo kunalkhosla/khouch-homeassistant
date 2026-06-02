@@ -1,0 +1,54 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Khouch",
+        "description": "Your Khouch server URL and login.",
+        "data": {
+          "url": "Khouch URL",
+          "username": "Username",
+          "password": "Password"
+        },
+        "data_description": {
+          "url": "e.g. https://iptv.example.com — editable later via Reconfigure."
+        }
+      },
+      "reconfigure": {
+        "title": "Update Khouch connection",
+        "description": "Change the Khouch URL or login. Used if your Khouch hostname changes.",
+        "data": {
+          "url": "Khouch URL",
+          "username": "Username",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Wrong username or password.",
+      "cannot_connect": "Couldn't reach that Khouch URL."
+    },
+    "abort": {
+      "already_configured": "This Khouch server is already configured.",
+      "reconfigure_successful": "Khouch connection updated."
+    }
+  },
+  "services": {
+    "search": {
+      "name": "Search the Khouch catalog",
+      "description": "Search live channels, movies, and series; returns all matches with a ref for each.",
+      "fields": {
+        "query": { "name": "Query", "description": "What to look for." },
+        "kind": { "name": "Kind", "description": "Limit to live, movie, or series." },
+        "limit": { "name": "Limit", "description": "Max results." }
+      }
+    },
+    "play": {
+      "name": "Play a Khouch result",
+      "description": "Stream one search result (by ref) to a media player.",
+      "fields": {
+        "ref": { "name": "Ref", "description": "The ref from a khouch.search result." },
+        "entity_id": { "name": "Target player", "description": "The media_player to stream to." }
+      }
+    }
+  }
+}
