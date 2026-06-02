@@ -25,8 +25,9 @@ DEFAULT_SEARCH_LIMIT = 20
 SERVICE_SEARCH = "search"
 SERVICE_PLAY = "play"
 
-# Khouch buckets a cross-catalog search into these modes.
-MODES = ("live", "movie", "series")
+# Khouch buckets a cross-catalog search into these modes. "disk" = the local library
+# (self-hosted files); omitting it silently hides all local content from search.
+MODES = ("live", "movie", "series", "disk")
 
 # A play target is referenced by an opaque token search hands back, so the
 # caller never has to know Khouch's id/mode/extension scheme: "<mode>:<id>:<ext>".
